@@ -1,27 +1,20 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useTodoStore } from "../stores/todo.ts";
+import { storeToRefs } from "pinia";
 
 // Todo 輸入欄位的內容
 const todoText = ref<string>("");
 
-// 假資料：暫時用來展示
-const todos = ref([
-  { id: Symbol(), text: "完成 Nuxt 初始化", completed: false },
-  { id: Symbol(), text: "學會使用 Tailwind CSS", completed: true },
-]);
+const todoStore = useTodoStore();
+const { todos } = storeToRefs(todoStore);
 
 // 處理新增 Todo
 const addTodo = () => {
   const text = todoText.value.trim();
-
   if (!text) return;
 
-  todos.value.push({
-    id: Symbol(), // 使用 Symbol 生成唯一 ID
-    text,
-    completed: false,
-  });
-
+  todoStore.addTodo(text);
   todoText.value = "";
 };
 </script>
@@ -52,7 +45,7 @@ const addTodo = () => {
         <li
           v-for="todo in todos"
           :key="todo.id"
-          class="flex item-center justify-between bg-white p-2 rounded shadow"
+          class="flex items-center justify-between bg-white p-2 rounded shadow"
         >
           <span :class="{ 'line-through text-gray-400': todo.completed }">
             {{ todo.text }}
