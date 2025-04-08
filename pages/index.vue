@@ -7,6 +7,10 @@ import { storeToRefs } from "pinia";
 const todoText = ref<string>("");
 
 const todoStore = useTodoStore();
+
+// 切換狀態、刪除功能
+const { toggleTodo, deleteTodo } = todoStore;
+
 const { todos } = storeToRefs(todoStore);
 
 // 處理新增 Todo
@@ -47,9 +51,18 @@ const addTodo = () => {
           :key="todo.id"
           class="flex items-center justify-between bg-white p-2 rounded shadow"
         >
-          <span :class="{ 'line-through text-gray-400': todo.completed }">
-            {{ todo.text }}
-          </span>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" v-model="todo.completed" />
+            <span :class="{ 'line-through text-gray-400': todo.completed }">
+              {{ todo.text }}
+            </span>
+          </label>
+          <button
+            @click="deleteTodo(todo.id)"
+            class="text-red-500 hover:text-red-700"
+          >
+            刪除
+          </button>
         </li>
       </ul>
     </div>

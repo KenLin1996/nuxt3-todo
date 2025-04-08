@@ -19,8 +19,21 @@ export const useTodoStore = defineStore("todo", () => {
     });
   };
 
+  //  切換完成狀態
+  const toggleTodo = (id: string) => {
+    const todo = todos.value.find((t) => t.id === id);
+    if (todo) todo.completed = !todo.completed;
+  };
+
+  //  刪除 todo
+  const deleteTodo = (id: string) => {
+    todos.value = todos.value.filter((t) => t.id !== id);
+  };
+
   return {
     todos,
     addTodo,
+    toggleTodo,
+    deleteTodo,
   };
 });
