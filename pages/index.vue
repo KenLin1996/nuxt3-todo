@@ -9,9 +9,9 @@ const todoText = ref<string>("");
 const todoStore = useTodoStore();
 
 // 切換狀態、刪除功能
-const { toggleTodo, deleteTodo } = todoStore;
+const { deleteTodo, setFilter } = todoStore;
 
-const { todos } = storeToRefs(todoStore);
+const { todos, filterState, filteredTodos } = storeToRefs(todoStore);
 
 // 處理新增 Todo
 const addTodo = () => {
@@ -26,6 +26,36 @@ const addTodo = () => {
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold text-center mb-4">📝 Nuxt 3 Todo List</h1>
+
+    <!-- 狀態篩選 -->
+    <div class="flex justify-center space-x-2 mb-4">
+      <button
+        @click="setFilter('all')"
+        :class="
+          filterState === 'all' ? 'text-blue-500 font-bold' : 'text-gray-500'
+        "
+      >
+        全部
+      </button>
+      <button
+        @click="setFilter('active')"
+        :class="
+          filterState === 'active' ? 'text-blue-500 font-bold' : 'text-gray-500'
+        "
+      >
+        未完成
+      </button>
+      <button
+        @click="setFilter('completed')"
+        :class="
+          filterState === 'completed'
+            ? 'text-blue-500 font-bold'
+            : 'text-gray-500'
+        "
+      >
+        已完成
+      </button>
+    </div>
 
     <!-- 輸入 Todo -->
     <div class="flex gap-2 mb-2 justify-center">
@@ -47,7 +77,7 @@ const addTodo = () => {
     <div>
       <ul class="space-y-2">
         <li
-          v-for="todo in todos"
+          v-for="todo in filteredTodos"
           :key="todo.id"
           class="flex items-center justify-between bg-white p-2 rounded shadow"
         >
