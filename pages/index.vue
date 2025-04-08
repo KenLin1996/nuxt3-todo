@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useTodoStore } from "../stores/todo.ts";
 import { storeToRefs } from "pinia";
+import draggable from "vuedraggable";
 
 // Todo 輸入欄位的內容
 const todoText = ref<string>("");
@@ -11,7 +12,7 @@ const todoStore = useTodoStore();
 // 切換狀態、刪除功能
 const { deleteTodo, setFilter } = todoStore;
 
-const { todos, filterState, filteredTodos } = storeToRefs(todoStore);
+const { todos, filterState } = storeToRefs(todoStore);
 
 // 處理新增 Todo
 const addTodo = () => {
@@ -20,6 +21,16 @@ const addTodo = () => {
 
   todoStore.addTodo(text);
   todoText.value = "";
+};
+
+// 根據篩選條件來判斷 Todo 是否顯示
+const shouldDisplay = (todo: { completed: boolean }) => {
+  if (filterState.value === "completed") {
+    return todo.completed;
+  } else if (filterState.value === "active") {
+    return !todo.completed;
+  }
+  return true;
 };
 </script>
 
@@ -74,27 +85,38 @@ const addTodo = () => {
     </div>
 
     <!-- 顯示 Todo 清單 -->
-    <div>
-      <ul class="space-y-2">
-        <li
-          v-for="todo in filteredTodos"
-          :key="todo.id"
-          class="flex items-center justify-between bg-white p-2 rounded shadow"
-        >
-          <label class="flex items-center gap-2">
-            <input type="checkbox" v-model="todo.completed" />
-            <span :class="{ 'line-through text-gray-400': todo.completed }">
-              {{ todo.text }}
-            </span>
-          </label>
-          <button
-            @click="deleteTodo(todo.id)"
-            class="text-red-500 hover:text-red-700"
+
+    <ul class="space-y-2">
+      <draggable
+        v-model="todos"
+        item-key="id"
+        class="space-y-2"
+        ghost-class="opacity-50"
+      >
+        <template #item="{ element: todo }">
+          <li
+            v-if="shouldDisplay(todo)"
+            class="flex items-center justify-between p-2 bg-white rounded shadow"
           >
-            刪除
-          </button>
-        </li>
-      </ul>
-    </div>
+            <label class="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                v-model="todo.completed"
+                class="form-checkbox"
+              />
+              <span :class="{ 'line-through text-gray-400': todo.completed }">
+                {{ todo.text }}
+              </span>
+            </label>
+            <button
+              @click="deleteTodo(todo.id)"
+              class="text-red-500 hover:text-red-700"
+            >
+              刪除
+            </button>
+          </li>
+        </template>
+      </draggable>
+    </ul>
   </div>
 </template>
