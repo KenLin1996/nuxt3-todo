@@ -1,25 +1,29 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { useTodoStore } from "../stores/todo.ts";
 import { storeToRefs } from "pinia";
 import draggable from "vuedraggable";
 
-// Todo 輸入欄位的內容
-const todoText = ref<string>("");
-
+// 狀態管理
 const todoStore = useTodoStore();
-
-// 切換狀態、刪除功能
-const { deleteTodo, setFilter } = todoStore;
-
+const { fetchTodos, add, remove, setFilter, toggle, edit } = todoStore;
 const { todos, filterState } = storeToRefs(todoStore);
 
-// 處理新增 Todo
+// 輸入框內容
+const todoText = ref<string>("");
+
+// 編輯相關狀態（以 id 為 key 存 edit 狀態）
+const editingId = ref<string | null>(null);
+const editingText = ref<string>("");
+
+const editingInputRef = ref<HTMLInputElement | null>(null);
+
+// 新增 Todo
 const addTodo = () => {
   const text = todoText.value.trim();
   if (!text) return;
 
-  todoStore.addTodo(text);
+  add(text);
   todoText.value = "";
 };
 
@@ -32,6 +36,36 @@ const shouldDisplay = (todo: { completed: boolean }) => {
   }
   return true;
 };
+
+// 編輯功能
+const startEdit = (todo: { id: string; text: string }) => {
+  editingId.value = todo.id;
+  editingText.value = todo.text;
+
+  nextTick(() => {
+    editingInputRef.value?.focus();
+  });
+
+  console.log("editingInputRef 的值：", editingInputRef.value);
+};
+
+const saveEdit = async (id: string) => {
+  if (!editingText.value.trim()) return;
+
+  await edit(id, editingText.value.trim());
+  editingId.value = null;
+};
+
+const cancelEdit = () => (editingId.value = null);
+
+// 刪除 todo
+const deleteTodo = (id: string) => {
+  remove(id);
+};
+
+onMounted(() => {
+  fetchTodos();
+});
 </script>
 
 <template>
@@ -85,38 +119,57 @@ const shouldDisplay = (todo: { completed: boolean }) => {
     </div>
 
     <!-- 顯示 Todo 清單 -->
-
-    <ul class="space-y-2">
-      <draggable
-        v-model="todos"
-        item-key="id"
-        class="space-y-2"
-        ghost-class="opacity-50"
-      >
-        <template #item="{ element: todo }">
-          <li
-            v-if="shouldDisplay(todo)"
-            class="flex items-center justify-between p-2 bg-white rounded shadow"
-          >
-            <label class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                v-model="todo.completed"
-                class="form-checkbox"
-              />
-              <span :class="{ 'line-through text-gray-400': todo.completed }">
-                {{ todo.text }}
-              </span>
-            </label>
-            <button
-              @click="deleteTodo(todo.id)"
-              class="text-red-500 hover:text-red-700"
+    <div v-if="todoStore.filteredTodos.length > 0">
+      <ul class="space-y-2">
+        <draggable
+          v-model="todos"
+          item-key="id"
+          class="space-y-2"
+          ghost-class="opacity-50"
+        >
+          <template #item="{ element: todo }">
+            <li
+              v-if="shouldDisplay(todo)"
+              class="flex items-center justify-between p-2 bg-white rounded shadow"
             >
-              刪除
-            </button>
-          </li>
-        </template>
-      </draggable>
-    </ul>
+              <div class="flex items-center space-x-4">
+                <input
+                  type="checkbox"
+                  :checked="todo.completed"
+                  class="form-checkbox"
+                  @click="toggle(todo.id)"
+                />
+                <!-- 編輯模式 -->
+                <input
+                  v-if="editingId === todo.id"
+                  ref="editingInputRef"
+                  v-model="editingText"
+                  @keydown.enter="saveEdit(todo.id)"
+                  @keydown.esc="cancelEdit"
+                  @blur="cancelEdit"
+                  class="border border-1 border-gray-300 px-2 py-1 rounded"
+                />
+
+                <!-- 顯示模式 -->
+                <span
+                  v-else
+                  @dblclick="startEdit(todo)"
+                  :class="{ 'line-through text-gray-400': todo.completed }"
+                >
+                  {{ todo.text }}
+                </span>
+              </div>
+              <button
+                @click="deleteTodo(todo.id)"
+                class="text-red-500 hover:text-red-700"
+              >
+                刪除
+              </button>
+            </li>
+          </template>
+        </draggable>
+      </ul>
+    </div>
+    <TodoEmptyMessage v-else :filter="todoStore.filterState" />
   </div>
 </template>

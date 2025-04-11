@@ -1,53 +1,15 @@
+// stores/todo.ts
 import { defineStore } from "pinia";
-import { v4 as uuidv4 } from "uuid"; // 引入 uuid
-import { ref, computed, watch, onMounted } from "vue";
-
-// localStorage Key
-const STORAGE_KEY = "MY_NUXT_TODO_LIST";
+import { ref, computed } from "vue";
+import { useTodoApi } from "../composables/useTodoApi";
 
 export const useTodoStore = defineStore("todo", () => {
   const todos = ref<{ id: string; text: string; completed: boolean }[]>([]);
-  //   const todos = ref([
-  //     { id: uuidv4(), text: "完成 Nuxt 初始化", completed: false },
-  //     { id: uuidv4(), text: "學會使用 Tailwind CSS", completed: true },
-  //   ]);
 
-  // 初始化時從 localStorage 讀取
-  const loadLocalStorageTodos = () => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        todos.value = JSON.parse(stored);
-      } catch (error) {
-        console.error("載入 localStorage 失敗", error);
-      }
-    } else {
-      // 初始預設資料
-      todos.value = [
-        { id: uuidv4(), text: "完成 Nuxt 初始化", completed: false },
-        { id: uuidv4(), text: "學會使用 Tailwind CSS", completed: true },
-      ];
-    }
-  };
+  const { getTodos, addTodo, updateTodo, deleteTodo } = useTodoApi();
 
   // 當前的篩選狀態
   const filterState = ref<"all" | "completed" | "active">("all");
-
-  // 處理新增 Todo
-  const addTodo = (text: string) => {
-    if (!text) return;
-
-    todos.value.push({
-      id: uuidv4(), // 使用 uuid 生成唯一 ID
-      text,
-      completed: false,
-    });
-  };
-
-  //  刪除 todo
-  const deleteTodo = (id: string) => {
-    todos.value = todos.value.filter((t) => t.id !== id);
-  };
 
   // 切換篩選狀態
   const setFilter = (value: typeof filterState.value) => {
@@ -64,29 +26,53 @@ export const useTodoStore = defineStore("todo", () => {
     return todos.value;
   });
 
-  // 自動 watch todos，更新 localStorage
-  watch(
-    todos,
-    (newTodos) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newTodos));
-    },
-    { deep: true }
-  );
+  // 從後端獲取 todos
+  const fetchTodos = async () => {
+    const res = await getTodos();
+    todos.value = res.data;
+  };
 
-  // 初始化讀取 LocalStorage
-  //   loadLocalStorageTodos();
+  // 新增 Todo
+  const add = async (text: string) => {
+    if (!text) return;
 
-  // 在組件掛載後讀取 LocalStorage
-  onMounted(() => {
-    loadLocalStorageTodos();
-  });
+    const res = await addTodo({ text });
+    todos.value.push(res.data);
+  };
+
+  //  刪除 todo
+  const remove = async (id: string) => {
+    await deleteTodo(id);
+
+    todos.value = todos.value.filter((t) => t.id !== id);
+  };
+
+  // 切換 todo 完成狀態
+  const toggle = async (id: string) => {
+    const todo = todos.value.find((t) => t.id === id);
+    if (!todo) return;
+    todo.completed = !todo.completed;
+    await updateTodo(id, { text: todo.text, completed: todo.completed });
+  };
+
+  // 編輯 todo 內容
+  const edit = async (id: string, newText: string) => {
+    const todo = todos.value.find((t) => t.id == id);
+    if (!todo) return;
+
+    todo.text = newText;
+    await updateTodo(id, { text: todo.text, completed: todo.completed });
+  };
 
   return {
     todos,
     filterState,
     filteredTodos,
-    addTodo,
-    deleteTodo,
+    fetchTodos,
+    add,
+    remove,
+    toggle,
     setFilter,
+    edit,
   };
 });
