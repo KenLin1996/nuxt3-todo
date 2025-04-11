@@ -1,3 +1,4 @@
+<!-- pages/index.vue -->
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from "vue";
 import { useTodoStore } from "../stores/todo.ts";
@@ -9,9 +10,6 @@ const todoStore = useTodoStore();
 const { fetchTodos, add, remove, setFilter, toggle, edit } = todoStore;
 const { todos, filterState } = storeToRefs(todoStore);
 
-// 輸入框內容
-const todoText = ref<string>("");
-
 // 編輯相關狀態（以 id 為 key 存 edit 狀態）
 const editingId = ref<string | null>(null);
 const editingText = ref<string>("");
@@ -19,12 +17,11 @@ const editingText = ref<string>("");
 const editingInputRef = ref<HTMLInputElement | null>(null);
 
 // 新增 Todo
-const addTodo = () => {
-  const text = todoText.value.trim();
-  if (!text) return;
+const addTodo = (text: string) => {
+  const trimmed = text.trim();
+  if (!trimmed) return;
 
-  add(text);
-  todoText.value = "";
+  add(trimmed);
 };
 
 // 根據篩選條件來判斷 Todo 是否顯示
@@ -103,19 +100,8 @@ onMounted(() => {
     </div>
 
     <!-- 輸入 Todo -->
-    <div class="flex gap-2 mb-2 justify-center">
-      <input
-        v-model="todoText"
-        type="text"
-        class="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-        placeholder="請輸入待辦事項..."
-      />
-      <button
-        @click="addTodo"
-        class="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600 cursor-pointer"
-      >
-        新增
-      </button>
+    <div class="flex gap-2 mb-4 justify-center">
+      <TodoForm :onSubmitTodo="addTodo" submitText="新增" />
     </div>
 
     <!-- 顯示 Todo 清單 -->
