@@ -110,13 +110,13 @@ onMounted(() => {
         <draggable
           v-model="todos"
           item-key="id"
-          class="space-y-2"
+          class="space-y-2 flex flex-col items-center"
           ghost-class="opacity-50"
         >
           <template #item="{ element: todo }">
             <li
               v-if="shouldDisplay(todo)"
-              class="flex items-center justify-between p-2 bg-white rounded shadow"
+              class="flex items-center justify-between p-2 bg-white rounded shadow w-[75%]"
             >
               <div class="flex items-center space-x-4">
                 <input

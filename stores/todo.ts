@@ -1,5 +1,4 @@
 // stores/todo.ts
-import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { useTodoApi } from "../composables/useTodoApi";
 

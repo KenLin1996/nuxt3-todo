@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000", // FastAPI 本地端預設
+  baseURL: "https://fastapi-todo-backend-wzda.onrender.com",
   headers: {
     "Content-Type": "application/json", // 確保請求內容是 JSON 格式
   },
@@ -15,7 +15,6 @@ export const useTodoApi = () => {
     api.patch(`/todos/edit/${id}`, todo);
   const deleteTodo = (id: string) => api.delete(`/todos/${id}`);
 
- 
   return {
     getTodos,
     addTodo,

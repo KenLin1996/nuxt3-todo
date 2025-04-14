@@ -9,4 +9,5 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  ssr: true, // 預設就是 true，可以省略
 });
