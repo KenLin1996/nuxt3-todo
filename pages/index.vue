@@ -126,16 +126,24 @@ onMounted(() => {
                   @click="toggle(todo.id)"
                 />
                 <!-- 編輯模式 -->
-                <input
+                <div
                   v-if="editingId === todo.id"
-                  ref="editingInputRef"
-                  v-model="editingText"
-                  @keydown.enter="saveEdit(todo.id)"
-                  @keydown.esc="cancelEdit"
-                  @blur="cancelEdit"
-                  class="border border-1 border-gray-300 px-2 py-1 rounded"
-                />
-
+                  class="flex items-center gap-2 border border-1 border-gray-300 px-2 py-1 rounded"
+                >
+                  <input
+                    ref="editingInputRef"
+                    v-model="editingText"
+                    @keydown.enter="saveEdit(todo.id)"
+                    @keydown.esc="cancelEdit"
+                    @blur="cancelEdit"
+                    class="outline-none"
+                  />
+                  <kbd
+                    class="text-xs bg-gray-500/75 px-1 py-[2px] rounded text-white"
+                  >
+                    Enter
+                  </kbd>
+                </div>
                 <!-- 顯示模式 -->
                 <span
                   v-else
