@@ -36,8 +36,9 @@ export const useTodoStore = defineStore("todo", () => {
     if (!text) return;
 
     const res = await addTodo({ text });
-    // todos.value.push(res.data);
-    todos.value = [...todos.value, res.data];
+    const newTodo = Array.isArray(res.data) ? res.data[0] : res.data;
+
+    todos.value = [...todos.value, newTodo];
   };
 
   //  刪除 todo

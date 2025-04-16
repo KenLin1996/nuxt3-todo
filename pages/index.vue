@@ -42,8 +42,6 @@ const startEdit = (todo: { id: string; text: string }) => {
   nextTick(() => {
     editingInputRef.value?.focus();
   });
-
-  console.log("editingInputRef 的值：", editingInputRef.value);
 };
 
 const saveEdit = async (id: string) => {
