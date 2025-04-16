@@ -139,7 +139,8 @@ onMounted(() => {
                     class="outline-none"
                   />
                   <kbd
-                    class="text-xs bg-gray-500/75 px-1 py-[2px] rounded text-white"
+                    @click="saveEdit(todo.id)"
+                    class="text-xs bg-gray-500/75 px-1 py-[2px] rounded text-white cursor-pointer"
                   >
                     Enter
                   </kbd>
