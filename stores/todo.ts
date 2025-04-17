@@ -32,7 +32,7 @@ export const useTodoStore = defineStore("todo", () => {
   const fetchTodos = async () => {
     const res = await getTodos();
     // todos.value = res.data;
-    todos.value = res.data.sort((a: any, b: any) => b.order - a.order);
+    todos.value = res.data.sort((a: any, b: any) => a.order - b.order);
   };
 
   // 新增 Todo
@@ -43,7 +43,7 @@ export const useTodoStore = defineStore("todo", () => {
     const newTodo = Array.isArray(res.data) ? res.data[0] : res.data;
 
     // todos.value = [...todos.value, newTodo];
-    todos.value = [...todos.value, newTodo].sort((a, b) => b.order - a.order);
+    todos.value = [...todos.value, newTodo].sort((a, b) => a.order - b.order);
   };
 
   //  刪除 todo
@@ -74,13 +74,14 @@ export const useTodoStore = defineStore("todo", () => {
   const reorder = async (newOrderList: { id: string; order: number }[]) => {
     await reorderTodos(newOrderList);
     // 更新前端狀態
-    for (const item of newOrderList) {
-      const todo = todos.value.find((t) => t.id === item.id);
-      if (todo) {
-        todo.order = item.order;
-      }
-    }
-    todos.value = [...todos.value].sort((a, b) => b.order - a.order);
+    // for (const item of newOrderList) {
+    //   const todo = todos.value.find((t) => t.id === item.id);
+    //   if (todo) {
+    //     todo.order = item.order;
+    //   }
+    // }
+    // todos.value = [...todos.value].sort((a, b) => b.order - a.order);
+    todos.value = [...todos.value];
   };
 
   return {

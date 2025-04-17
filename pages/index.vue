@@ -160,6 +160,7 @@ onMounted(() => {
                   :class="{ 'line-through text-gray-400': todo.completed }"
                 >
                   {{ todo.text }}
+                  {{ todo.order }}
                 </span>
               </div>
               <button
