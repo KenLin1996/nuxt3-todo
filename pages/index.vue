@@ -1,13 +1,13 @@
 <!-- pages/index.vue -->
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from "vue";
-import { useTodoStore } from "../stores/todo.ts";
+import { useTodoStore } from "../stores/todo";
 import { storeToRefs } from "pinia";
 import draggable from "vuedraggable";
 
 // 狀態管理
 const todoStore = useTodoStore();
-const { fetchTodos, add, remove, setFilter, toggle, edit } = todoStore;
+const { fetchTodos, add, remove, setFilter, toggle, edit, reorder } = todoStore;
 const { todos, filterState } = storeToRefs(todoStore);
 
 // 編輯相關狀態（以 id 為 key 存 edit 狀態）
@@ -56,6 +56,15 @@ const cancelEdit = () => (editingId.value = null);
 // 刪除 todo
 const deleteTodo = (id: string) => {
   remove(id);
+};
+
+const onDragEnd = () => {
+  const newOrderList = todos.value.map((todo, index) => ({
+    id: todo.id,
+    order: index + 1,
+  }));
+
+  reorder(newOrderList);
 };
 
 onMounted(() => {
@@ -110,6 +119,7 @@ onMounted(() => {
           item-key="id"
           class="space-y-2 flex flex-col items-center"
           ghost-class="opacity-50"
+          @end="onDragEnd"
         >
           <template #item="{ element: todo }">
             <li
