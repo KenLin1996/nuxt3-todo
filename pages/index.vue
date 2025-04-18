@@ -67,113 +67,123 @@ const onDragEnd = () => {
   reorder(newOrderList);
 };
 
+const retry = () => todoStore.fetchTodos();
+
 onMounted(() => {
   fetchTodos();
 });
 </script>
 
 <template>
-  <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold text-center mb-4">📝 Nuxt 3 Todo List</h1>
+  <DataLoader
+    :isLoading="todoStore.isLoading"
+    :hasError="todoStore.hasError"
+    :errorMessage="todoStore.errorMessage"
+    :onRetry="retry"
+  >
+    <div class="container mx-auto p-4">
+      <h1 class="text-2xl font-bold text-center mb-4">📝 Nuxt 3 Todo List</h1>
 
-    <!-- 狀態篩選 -->
-    <div class="flex justify-center space-x-2 mb-4">
-      <button
-        @click="setFilter('all')"
-        :class="
-          filterState === 'all' ? 'text-blue-500 font-bold' : 'text-gray-500'
-        "
-      >
-        全部
-      </button>
-      <button
-        @click="setFilter('active')"
-        :class="
-          filterState === 'active' ? 'text-blue-500 font-bold' : 'text-gray-500'
-        "
-      >
-        未完成
-      </button>
-      <button
-        @click="setFilter('completed')"
-        :class="
-          filterState === 'completed'
-            ? 'text-blue-500 font-bold'
-            : 'text-gray-500'
-        "
-      >
-        已完成
-      </button>
-    </div>
-
-    <!-- 輸入 Todo -->
-    <div class="flex gap-2 mb-4 justify-center">
-      <TodoForm :onSubmitTodo="addTodo" submitText="新增" />
-    </div>
-
-    <!-- 顯示 Todo 清單 -->
-    <div v-if="todoStore.filteredTodos.length > 0">
-      <ul class="space-y-2">
-        <draggable
-          v-model="todos"
-          item-key="id"
-          class="space-y-2 flex flex-col items-center"
-          ghost-class="opacity-50"
-          @end="onDragEnd"
+      <!-- 狀態篩選 -->
+      <div class="flex justify-center space-x-2 mb-4">
+        <button
+          @click="setFilter('all')"
+          :class="
+            filterState === 'all' ? 'text-blue-500 font-bold' : 'text-gray-500'
+          "
         >
-          <template #item="{ element: todo }">
-            <li
-              v-if="shouldDisplay(todo)"
-              class="flex items-center justify-between p-2 bg-white rounded shadow w-[75%]"
-            >
-              <div class="flex items-center space-x-4">
-                <input
-                  type="checkbox"
-                  :checked="todo.completed"
-                  class="form-checkbox"
-                  @click="toggle(todo.id)"
-                />
-                <!-- 編輯模式 -->
-                <div
-                  v-if="editingId === todo.id"
-                  class="flex items-center gap-2 border border-1 border-gray-300 px-2 py-1 rounded"
-                >
-                  <input
-                    ref="editingInputRef"
-                    v-model="editingText"
-                    @keydown.enter="saveEdit(todo.id)"
-                    @keydown.esc="cancelEdit"
-                    @blur="cancelEdit"
-                    class="outline-none"
-                  />
-                  <kbd
-                    @click="saveEdit(todo.id)"
-                    class="text-xs bg-gray-500/75 px-1 py-[2px] rounded text-white cursor-pointer"
-                  >
-                    Enter
-                  </kbd>
-                </div>
-                <!-- 顯示模式 -->
-                <span
-                  v-else
-                  @dblclick="startEdit(todo)"
-                  :class="{ 'line-through text-gray-400': todo.completed }"
-                >
-                  {{ todo.text }}
-                  {{ todo.order }}
-                </span>
-              </div>
-              <button
-                @click="deleteTodo(todo.id)"
-                class="text-red-500 hover:text-red-700"
+          全部
+        </button>
+        <button
+          @click="setFilter('active')"
+          :class="
+            filterState === 'active'
+              ? 'text-blue-500 font-bold'
+              : 'text-gray-500'
+          "
+        >
+          未完成
+        </button>
+        <button
+          @click="setFilter('completed')"
+          :class="
+            filterState === 'completed'
+              ? 'text-blue-500 font-bold'
+              : 'text-gray-500'
+          "
+        >
+          已完成
+        </button>
+      </div>
+
+      <!-- 輸入 Todo -->
+      <div class="flex gap-2 mb-4 justify-center">
+        <TodoForm :onSubmitTodo="addTodo" submitText="新增" />
+      </div>
+
+      <!-- 顯示 Todo 清單 -->
+      <div v-if="todoStore.filteredTodos.length > 0">
+        <ul class="space-y-2">
+          <draggable
+            v-model="todos"
+            item-key="id"
+            class="space-y-2 flex flex-col items-center"
+            ghost-class="opacity-50"
+            @end="onDragEnd"
+          >
+            <template #item="{ element: todo }">
+              <li
+                v-if="shouldDisplay(todo)"
+                class="flex items-center justify-between p-2 bg-white rounded shadow w-[75%]"
               >
-                刪除
-              </button>
-            </li>
-          </template>
-        </draggable>
-      </ul>
+                <div class="flex items-center space-x-4">
+                  <input
+                    type="checkbox"
+                    :checked="todo.completed"
+                    class="form-checkbox"
+                    @click="toggle(todo.id)"
+                  />
+                  <!-- 編輯模式 -->
+                  <div
+                    v-if="editingId === todo.id"
+                    class="flex items-center gap-2 border border-1 border-gray-300 px-2 py-1 rounded"
+                  >
+                    <input
+                      ref="editingInputRef"
+                      v-model="editingText"
+                      @keydown.enter="saveEdit(todo.id)"
+                      @keydown.esc="cancelEdit"
+                      @blur="cancelEdit"
+                      class="outline-none"
+                    />
+                    <kbd
+                      @click="saveEdit(todo.id)"
+                      class="text-xs bg-gray-500/75 px-1 py-[2px] rounded text-white cursor-pointer"
+                    >
+                      Enter
+                    </kbd>
+                  </div>
+                  <!-- 顯示模式 -->
+                  <span
+                    v-else
+                    @dblclick="startEdit(todo)"
+                    :class="{ 'line-through text-gray-400': todo.completed }"
+                  >
+                    {{ todo.text }}
+                  </span>
+                </div>
+                <button
+                  @click="deleteTodo(todo.id)"
+                  class="text-red-500 hover:text-red-700"
+                >
+                  刪除
+                </button>
+              </li>
+            </template>
+          </draggable>
+        </ul>
+      </div>
+      <TodoEmptyMessage v-else :filter="todoStore.filterState" />
     </div>
-    <TodoEmptyMessage v-else :filter="todoStore.filterState" />
-  </div>
+  </DataLoader>
 </template>

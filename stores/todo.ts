@@ -7,6 +7,10 @@ export const useTodoStore = defineStore("todo", () => {
     { id: string; text: string; completed: boolean; order: number }[]
   >([]);
 
+  const isLoading = ref(false);
+  const hasError = ref(false);
+  const errorMessage = ref<string>("");
+
   const { getTodos, addTodo, updateTodo, reorderTodos, deleteTodo } =
     useTodoApi();
 
@@ -30,9 +34,18 @@ export const useTodoStore = defineStore("todo", () => {
 
   // 從後端獲取 todos
   const fetchTodos = async () => {
-    const res = await getTodos();
-    // todos.value = res.data;
-    todos.value = res.data.sort((a: any, b: any) => a.order - b.order);
+    isLoading.value = true;
+    hasError.value = false;
+    errorMessage.value = "";
+    try {
+      const res = await getTodos();
+      todos.value = res.data.sort((a: any, b: any) => a.order - b.order);
+    } catch (err: any) {
+      hasError.value = true;
+      errorMessage.value = err.message || "無法取得資料，請稍後再試";
+    } finally {
+      isLoading.value = false;
+    }
   };
 
   // 新增 Todo
@@ -42,8 +55,7 @@ export const useTodoStore = defineStore("todo", () => {
     const res = await addTodo({ text });
     const newTodo = Array.isArray(res.data) ? res.data[0] : res.data;
 
-    // todos.value = [...todos.value, newTodo];
-    todos.value = [...todos.value, newTodo].sort((a, b) => a.order - b.order);
+    todos.value.unshift(newTodo);
   };
 
   //  刪除 todo
@@ -73,19 +85,14 @@ export const useTodoStore = defineStore("todo", () => {
   //  拖曳後更新排序
   const reorder = async (newOrderList: { id: string; order: number }[]) => {
     await reorderTodos(newOrderList);
-    // 更新前端狀態
-    // for (const item of newOrderList) {
-    //   const todo = todos.value.find((t) => t.id === item.id);
-    //   if (todo) {
-    //     todo.order = item.order;
-    //   }
-    // }
-    // todos.value = [...todos.value].sort((a, b) => b.order - a.order);
     todos.value = [...todos.value];
   };
 
   return {
     todos,
+    isLoading,
+    hasError,
+    errorMessage,
     filterState,
     filteredTodos,
     fetchTodos,
