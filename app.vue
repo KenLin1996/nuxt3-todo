@@ -1,5 +1,6 @@
+<!-- app.vue -->
 <template>
-  <div class="min-h-screen bg-gray-100 flex items-center justify-center">
+  <NuxtLayout>
     <NuxtPage></NuxtPage>
-  </div>
+  </NuxtLayout>
 </template>
