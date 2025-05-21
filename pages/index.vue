@@ -120,36 +120,53 @@
       >
         🚀 立即建立你的任務清單
       </h2>
-
-      <div
-        class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md text-center space-y-6"
-      >
-        <p class="text-xl text-[#334155] font-medium">立即登入以開始管理任務</p>
-
-        <NuxtLink
-          to="/todos"
-          class="inline-flex items-center justify-center w-full bg-[#00DC82] text-white px-6 py-3 text-lg rounded-xl hover:bg-[#00B16A] transition font-semibold shadow"
+      <template v-if="!isLoggedIn">
+        <div
+          class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md text-center space-y-6"
         >
-          🔐 登入（尚未完成）
-        </NuxtLink>
-
-        <div class="text-[#475569] text-base">
-          還沒有帳戶嗎？
+          <p class="text-xl text-[#334155] font-medium">
+            立即登入以開始管理任務
+          </p>
           <NuxtLink
-            to="/register"
-            class="text-[#00B16A] font-semibold hover:underline"
+            to="/login"
+            class="inline-flex items-center justify-center w-full bg-[#00DC82] text-white px-6 py-3 text-lg rounded-xl hover:bg-[#00B16A] transition font-semibold shadow"
           >
-            免費註冊
+            🔐 登入（尚未完成）
+          </NuxtLink>
+
+          <div class="text-[#475569] text-base">
+            還沒有帳戶嗎？
+            <NuxtLink
+              to="/register"
+              class="text-[#00B16A] font-semibold hover:underline"
+            >
+              免費註冊
+            </NuxtLink>
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <div
+          class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md text-center space-y-6"
+        >
+          <p class="text-xl text-[#334155] font-medium">
+            立即開始管理你的任務清單
+          </p>
+          <NuxtLink
+            to="/todos"
+            class="inline-flex items-center justify-center w-full bg-[#00DC82] text-white px-6 py-3 text-lg rounded-xl hover:bg-[#00B16A] transition font-semibold shadow"
+          >
+            🚀 開始使用
           </NuxtLink>
         </div>
-      </div>
+      </template>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useTodoApi } from "../composables/useTodoApi.ts";
+// import { useTodoApi } from "../composables/useTodoApi";
 import memeCatGif from "../assets/medias/memeCat.gif";
 import vegOutCatGif from "../assets/medias/vegOutCat.gif";
 
@@ -180,7 +197,8 @@ useHead({
   ],
 });
 
-const current = ref<Number>(0);
+const current = ref<number>(0);
+const { isLoggedIn } = useUserStore();
 const previewFeatures = [
   {
     label: "基本操作",
@@ -207,8 +225,8 @@ const previewFeatures = [
   },
 ];
 
-onMounted(() => {
-  const { getTodos } = useTodoApi();
-  getTodos().catch(() => {});
-});
+// onMounted(() => {
+//   const { getTodos } = useTodoApi();
+//   getTodos().catch(() => {});
+// });
 </script>

@@ -135,6 +135,8 @@ const activeFilterClass =
 const inactiveFilterClass =
   "px-4 py-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition";
 
+const { isLoggedIn } = useUserStore();
+
 // 狀態管理
 const todoStore = useTodoStore();
 const { fetchTodos, add, remove, setFilter, toggle, edit, reorder } = todoStore;
@@ -197,7 +199,12 @@ const onDragEnd = () => {
   reorder(newOrderList);
 };
 
-const retry = () => todoStore.fetchTodos();
+const retry = () => {
+  if (!isLoggedIn) {
+    navigateTo("/");
+  }
+  todoStore.fetchTodos();
+};
 
 onMounted(() => {
   fetchTodos();
