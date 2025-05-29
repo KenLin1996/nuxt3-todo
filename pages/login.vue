@@ -46,8 +46,8 @@ const router = useRouter();
 
 const { login } = useAuth();
 const form = ref({
-  email: "",
-  password: "",
+  email: "test1@gmail.com",
+  password: "test1",
 });
 
 const error = ref("");

@@ -165,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 // import { useTodoApi } from "../composables/useTodoApi";
 import memeCatGif from "../assets/medias/memeCat.gif";
 import vegOutCatGif from "../assets/medias/vegOutCat.gif";
@@ -195,6 +195,35 @@ useHead({
       href: "https://nuxt3-todo.vercel.app/",
     },
   ],
+});
+
+// ✅ 結構化資料 (Rich Snippets)
+definePageMeta({
+  script: [
+    {
+      type: "application/ld+json",
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebApplication", // 代表這是一個網頁
+        name: "NTL Todo App",
+        url: "https://nuxt3-todo.vercel.app",
+        applicationCategory: "Productivity",
+        operatingSystem: "All",
+        description:
+          "一個使用 Nuxt3 和 FastAPI 打造的待辦清單應用，支援拖曳排序與離線瀏覽。",
+        offers: {
+          "@type": "Offer",
+          price: "0", // 免費使用
+          priceCurrency: "USD",
+        },
+        author: {
+          "@type": "Person",
+          name: "Ken",
+        },
+      }),
+    },
+  ],
+  __dangerouslyDisableSanitizers: ["script"],
 });
 
 const current = ref<number>(0);
